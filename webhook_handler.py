@@ -3,6 +3,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Any
 
 from ClaimTicketStore import ClaimTicketStore
+from cursor_config import account_label, activation_error, load_link_config, repo_label
 from ticket_handler import handle_ticket_received
 from jira_config import get_webhook_secret
 
@@ -69,6 +70,16 @@ class JiraWebhookHandler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
+    error = activation_error()
+    if error:
+        print(error)
+        raise SystemExit(1)
+
+    print("Linked Cursor accounts:")
+    for account in load_link_config()["accounts"]:
+        repos = ", ".join(repo_label(url) for url in account.get("repos", [])) or "no repos"
+        print(f"  {account_label(account)} — {repos}")
+
     server = HTTPServer(("127.0.0.1", 8001), JiraWebhookHandler)
     print("Listening on http://127.0.0.1:8001/jira-webhook")
     server.serve_forever()

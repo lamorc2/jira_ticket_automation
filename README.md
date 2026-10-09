@@ -4,6 +4,8 @@ A small local-first Jira automation that receives ticket-created webhooks, claim
 
 This is the a working slice of a larger ticket analyzer. The current goal is intentionally narrow: prove the webhook-to-comment loop works before adding expensive or complex analysis.
 The RCA piece of this tool is currently excluded, since my original version used credentials from an internship. I'm working on updating this so it can be linked to Cursor, Claude Code, or Codex.
+
+Used Cursor to create a simple setup script to link a repository and Cursor API account.
 ## What It Does
 
 - Receives Jira Automation webhooks at `POST /jira-webhook`
@@ -35,6 +37,8 @@ ticket_handler.py        Main workflow: validate, claim, comment, complete/fail
 ClaimTicketStore.py      SQLite-backed claim store
 jira_api.py              Outgoing Jira REST API requests
 jira_config.py           Local config and .env loading
+setup.py                 Terminal setup for Cursor accounts and repos
+cursor_config.py         Saved Cursor link config (`.cursor-link.json`)
 inspect_claim.py         Inspect local claim state
 reset_failed_claim.py    Reset a failed claim for retry
 test_echo_server.py      Local echo server for outbound request testing
@@ -77,6 +81,18 @@ DEBUG_MODE = False
 When `DEBUG_MODE` is `True`, the app avoids real Jira credentials and uses local/fake values. When `False`, it reads real values from `.env`.
 
 This switch is deliberately not user-configurable at runtime. Posting to real Jira should require an intentional code change.
+
+## Cursor setup
+
+Link a Cursor account and choose repos before the webhook will start. The API key stays in `.cursor-link.json` and is not committed.
+
+```bash
+.venv/bin/python setup.py
+```
+
+Create the key at [Cursor Dashboard → Integrations](https://cursor.com/dashboard/integrations). The setup checks the key, lists repos on that account, and asks which ones to link. You can link more than one account. The last prompt activates the automation.
+
+Until that file is activated, `webhook_handler.py` exits instead of listening.
 
 ## Running Locally
 

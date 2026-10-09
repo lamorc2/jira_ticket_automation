@@ -1,10 +1,33 @@
 from typing import Any
 from collections.abc import Callable
 from ClaimTicketStore import ClaimTicketStore
+from cursor_sdk import Agent, AgentOptions, CloudAgentOptions, CloudRepository, CursorAgentError
+from cursor_config import load_link_config
 from jira_config import get_debug_mode, seen_ticket_str
-from jira_api import post_internal_jira_comment
+from jira_api import post_internal_jira_comment, get_jira_request
+
 def print_debug_comment(issue_key: str, body: str) -> None:
     print(f"Would comment on {issue_key}: {body}")
+
+def analyze_ticket(issue_key: str) -> str:
+    account = load_link_config()["accounts"][0]
+    repo_url = account["repos"][0]
+    try:
+        ticket_data = get_jira_request(issue_key)
+        result = Agent.prompt(
+            f"Investigate Jira ticket {issue_key} and write a short analysis. Ticket: \n" + ticket_data,
+            AgentOptions(
+                api_key=account["api_key"],
+                model="composer-2.5",
+                cloud=CloudAgentOptions(repos=[CloudRepository(url=repo_url)]),
+            ),
+        )
+    except CursorAgentError as err:
+        raise RuntimeError(f"agent did not start: {err.message}") from err
+    if result.status == "error":
+        raise RuntimeError(f"agent run failed: {result.id}")
+    return result.result
+
 
 
 def handle_ticket_received(
@@ -25,7 +48,8 @@ def handle_ticket_received(
             else post_internal_jira_comment
         )
     try:
-        output_comment(issue_key, seen_ticket_str)
+        analysis = analyze_ticket(issue_key)
+        output_comment(issue_key, analysis)
     except Exception as exc:
         claim_store.mark_failed(issue_key, str(exc))
         print(f"Failed {issue_key}: {exc}")
