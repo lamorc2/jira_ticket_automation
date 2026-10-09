@@ -2,8 +2,8 @@
 
 A small local-first Jira automation that receives ticket-created webhooks, claims each ticket exactly once in SQLite, and posts a canned acknowledgement comment back to Jira.
 
-This is the first working slice of a larger ticket analyzer. The current goal is intentionally narrow: prove the webhook-to-comment loop works before adding expensive or complex analysis.
-
+This is the a working slice of a larger ticket analyzer. The current goal is intentionally narrow: prove the webhook-to-comment loop works before adding expensive or complex analysis.
+The RCA piece of this tool is currently excluded, since my original version used credentials from an internship. I'm working on updating this so it can be linked to Cursor, Claude Code, or Codex.
 ## What It Does
 
 - Receives Jira Automation webhooks at `POST /jira-webhook`
