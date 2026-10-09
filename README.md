@@ -25,21 +25,6 @@ Jira ticket created
   -> ClaimTicketStore.py marks the issue completed or failed
 ```
 
-## Project Files
-
-```text
-webhook_handler.py       Local HTTP server and webhook endpoint
-ticket_handler.py        Main workflow: validate, claim, comment, complete/fail
-ClaimTicketStore.py      SQLite-backed claim store
-jira_api.py              Outgoing Jira REST API requests
-jira_config.py           Local config and .env loading
-setup.py                 Terminal setup for Cursor accounts and repos
-cursor_config.py         Saved Cursor link config (`.cursor-link.json`)
-inspect_claim.py         Inspect local claim state
-reset_failed_claim.py    Reset a failed claim for retry
-test_echo_server.py      Local echo server for outbound request testing
-test_bot.py              Small Jira API/preflight test helper
-```
 
 ## Requirements
 
@@ -47,9 +32,9 @@ test_bot.py              Small Jira API/preflight test helper
 - A Jira Cloud site
 - A Jira API token
 - A Jira Automation rule
+- A Cursor API token
 - A public tunnel for local webhook testing, such as Cloudflare Tunnel
-
-No third-party Python packages are required for the current MVP.
+- Installed Claude SDK
 
 ## Configuration
 
@@ -216,8 +201,7 @@ Because `issue_key` is the primary key, only one request can claim a ticket. Dup
 
 ## Next Milestones
 
-- Add a tiny `analyze_ticket(issue_key)` placeholder
-- Move from canned comments to structured analysis output
+
 - Add stale `processing` claim handling
 - Add real tests around claim behavior and payload validation
 - Decide whether a queue is needed once analysis becomes slow
