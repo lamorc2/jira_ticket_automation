@@ -1,10 +1,6 @@
 # Jira Ticket Automation MVP
 
 A small local-first Jira automation that receives ticket-created webhooks, claims each ticket exactly once in SQLite, and posts a canned acknowledgement comment back to Jira.
-
-This is the a working slice of a larger ticket analyzer. The current goal is intentionally narrow: prove the webhook-to-comment loop works before adding expensive or complex analysis.
-The RCA piece of this tool is currently excluded, since my original version used credentials from an internship. I'm working on updating this so it can be linked to Cursor, Claude Code, or Codex.
-
 Used Cursor to create a simple setup script to link a repository and Cursor API account.
 ## What It Does
 
@@ -13,7 +9,7 @@ Used Cursor to create a simple setup script to link a repository and Cursor API 
 - Extracts the Jira issue key from the webhook payload
 - Claims the issue key in SQLite using an atomic insert
 - Skips duplicate webhook deliveries for the same issue
-- Posts a canned comment to Jira
+- Posts a Cursor agent analysis to the ticket
 - Records completed or failed processing state locally
 - Provides small local scripts for inspecting and resetting failed claims
 
